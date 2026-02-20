@@ -121,6 +121,17 @@ class Display{
          * 
          */
         void invertColor(void);
+
+        /**
+         * @brief draws a monochrome bitmap at (x,y). Requires page alignment: y and h must be multiples of 8.
+         * Bitmap format: SSD1306 column-major, each byte = 8 vertical pixels.
+         * @param x column start (0–127)
+         * @param y row start (0–63, must be multiple of 8)
+         * @param bitmap pointer to bitmap data
+         * @param w width in pixels
+         * @param h height in pixels (must be multiple of 8)
+         */
+        void drawBitmap(uint8_t x, uint8_t y, const uint8_t* bitmap, uint8_t w, uint8_t h);
 };
 
 

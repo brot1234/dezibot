@@ -173,3 +173,39 @@ void Display::invertColor(void){
     }
     this->colorInverted = !this->colorInverted;
 };
+
+void Display::drawBitmap(uint8_t x, uint8_t y, const uint8_t* bitmap, uint8_t w, uint8_t h) {
+    if (!bitmap || w == 0 || h == 0) return;
+    if ((y % 8) != 0 || (h % 8) != 0) return;
+    if (x > 127 || y > 63) return;
+
+    uint8_t maxW = 128 - x;
+    uint8_t maxH = 64 - y;
+    uint8_t drawW = (w < maxW) ? w : maxW;
+    uint8_t drawH = (h < maxH) ? h : maxH;
+    drawH -= (drawH % 8);
+    if (drawW == 0 || drawH == 0) return;
+
+    uint8_t startPage = y / 8;
+    uint8_t endPage = startPage + (drawH / 8) - 1;
+
+    sendDisplayCMD(addressingMode);
+    sendDisplayCMD(0x00);
+    sendDisplayCMD(colRange);
+    sendDisplayCMD(x);
+    sendDisplayCMD(x + drawW - 1);
+    sendDisplayCMD(pageRange);
+    sendDisplayCMD(startPage);
+    sendDisplayCMD(endPage);
+
+    uint16_t total = (uint16_t)drawW * (drawH / 8);
+    uint16_t idx = 0;
+    while (idx < total) {
+        Wire.beginTransmission(DisplayAdress);
+        Wire.write(data_byte);
+        for (uint8_t chunk = 0; chunk < 16 && idx < total; ++chunk) {
+            Wire.write(bitmap[idx++]);
+        }
+        Wire.endTransmission();
+    }
+}
