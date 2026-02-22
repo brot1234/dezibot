@@ -19,7 +19,7 @@
 #include "infraredLight/InfraredLight.h"
 #include "communication/Communication.h"
 #include "display/Display.h"
-
+#include "surfaceDetection/SurfaceDetection.h"
 
 class Dezibot {
 protected:
@@ -33,6 +33,7 @@ public:
     InfraredLight infraredLight;
     Communication communication;
     Display display;
+    SurfaceDetection surfaceDetection;
     void begin(void);
 };
 
