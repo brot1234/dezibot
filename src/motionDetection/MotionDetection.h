@@ -205,6 +205,23 @@ public:
     uint getDataFromFIFO(FIFO_Package* buffer);
 
     /**
+     * @brief Samples IMU at fixed rate and fills buffer with accel + gyro data.
+     *
+     * Fills buffer with row-major data: [ax, ay, az, gx, gy, gz] per sample.
+     * Units: accelerometer m/s², gyroscope rad/s.
+     *
+     * @attention Do NOT call while Motion is executing (move, rotate). Sample only
+     * when the robot is idle. Motion uses FIFO internally; concurrent use causes conflict.
+     *
+     * @param buffer     Pre-allocated float array. Size must be at least numSamples * 6.
+     * @param numSamples Number of samples to collect (e.g. 50 for 1 s at 50 Hz).
+     * @param samplesPerSecond Target sampling rate (default 50). Actual rate may vary slightly.
+     *
+     * @return true on success, false on failure (e.g. invalid buffer, IMU error).
+     */
+    bool sampleImuWindow(float* buffer, int numSamples, int samplesPerSecond = 50);
+
+    /**
      * @brief set Motion as a friend class
      * so it can access the methods to start and stop writing data to FIFO
      * 

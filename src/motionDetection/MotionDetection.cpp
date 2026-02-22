@@ -278,6 +278,39 @@ uint MotionDetection::getDataFromFIFO(FIFO_Package* buffer){
     return fifocount;
 };
 
+bool MotionDetection::sampleImuWindow(float* buffer, int numSamples, int samplesPerSecond) {
+    if (buffer == nullptr || numSamples <= 0 || samplesPerSecond <= 0) {
+        return false;
+    }
+
+    const float accelScale = 9.81f / 16384.0f;   // ±2g: LSB/g → m/s²
+    const float gyroScale = 3.14159265f / 180.0f / 131.0f;  // ±250 dps: LSB/°/s → rad/s
+
+    unsigned long intervalMs = 1000 / (unsigned long)samplesPerSecond;
+
+    for (int i = 0; i < numSamples; i++) {
+        unsigned long start = millis();
+
+        IMUResult accel = getAcceleration();
+        IMUResult gyro = getRotation();
+
+        int base = i * 6;
+        buffer[base + 0] = accel.x * accelScale;
+        buffer[base + 1] = accel.y * accelScale;
+        buffer[base + 2] = accel.z * accelScale;
+        buffer[base + 3] = gyro.x * gyroScale;
+        buffer[base + 4] = gyro.y * gyroScale;
+        buffer[base + 5] = gyro.z * gyroScale;
+
+        unsigned long elapsed = millis() - start;
+        if (elapsed < intervalMs && (i < numSamples - 1)) {
+            delay(intervalMs - elapsed);
+        }
+    }
+
+    return true;
+}
+
 void MotionDetection::writeRegister(uint8_t reg, uint8_t value){
     handler->beginTransaction(SPISettings(frequency,SPI_MSBFIRST,SPI_MODE0));
     digitalWrite(34,LOW);

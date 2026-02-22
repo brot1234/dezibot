@@ -34,6 +34,9 @@ docs/*
 *.out
 *.app
 
+# PlatformIO
+.pio/
+
 #VSCode
 .vscode/*
 .history/
