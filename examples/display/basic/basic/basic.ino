@@ -13,7 +13,7 @@ void loop() {
 	dezibot.display.print("Hello from\nDezibot!");
 	delay(2000);
 	dezibot.display.clear();
-	dezibot.display.drawBitmapP(0, 0, bitmap_c_logo, 64, 64);
+	dezibot.display.drawBitmap(0, 0, bitmap_c_logo, 64, 64);
 	delay(2000);
 	dezibot.display.clear();
 	dezibot.display.playAnimation(0, 0, animation_frames, 6, 64, 64, 120);

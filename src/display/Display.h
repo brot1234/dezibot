@@ -43,6 +43,19 @@ class Display{
          */
         void updateLine(uint charAmount);
 
+        /**
+         * @brief shared implementation for drawBitmap and fillRect.
+         * Validates, clips, sets up the display region, and streams bytes via I2C.
+         * Uses pgm_read_byte which works transparently for both RAM and PROGMEM on ESP32.
+         * @param x column start (0–127)
+         * @param y row start (0–63, must be multiple of 8)
+         * @param data pointer to bitmap data (ignored when fill=true)
+         * @param w width in pixels
+         * @param h height in pixels (must be multiple of 8)
+         * @param fill if true, writes 0x00 instead of reading from data
+         */
+        void sendBitmapRegion(uint8_t x, uint8_t y, const uint8_t* data, uint8_t w, uint8_t h, bool fill);
+
     public:
         
         /**
@@ -125,26 +138,14 @@ class Display{
         /**
          * @brief draws a monochrome bitmap at (x,y). Requires page alignment: y and h must be multiples of 8.
          * Bitmap format: SSD1306 column-major, each byte = 8 vertical pixels.
-         * Use for RAM-backed data (e.g. buffers, dynamic bitmaps).
+         * Works with both RAM and PROGMEM data (pgm_read_byte is a no-op on ESP32).
          * @param x column start (0–127)
          * @param y row start (0–63, must be multiple of 8)
-         * @param bitmap pointer to bitmap data in RAM
+         * @param bitmap pointer to bitmap data (RAM or PROGMEM)
          * @param w width in pixels
          * @param h height in pixels (must be multiple of 8)
          */
         void drawBitmap(uint8_t x, uint8_t y, const uint8_t* bitmap, uint8_t w, uint8_t h);
-
-        /**
-         * @brief draws a bitmap from PROGMEM (flash). Same as drawBitmap but reads via pgm_read_byte.
-         * Use for static bitmaps (e.g. from image2cpp). Saves RAM by keeping data in flash.
-         * On ESP32 both drawBitmap and drawBitmapP work with PROGMEM; use drawBitmapP for clarity.
-         * @param x column start (0–127)
-         * @param y row start (0–63, must be multiple of 8)
-         * @param bitmap pointer to PROGMEM bitmap data
-         * @param w width in pixels
-         * @param h height in pixels (must be multiple of 8)
-         */
-        void drawBitmapP(uint8_t x, uint8_t y, const uint8_t* bitmap, uint8_t w, uint8_t h);
 
         /**
          * @brief fills a rectangle with black (erases region). Requires page alignment: y and h multiples of 8.
